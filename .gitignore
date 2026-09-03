@@ -1,1 +1,9 @@
-c:\monProjet\lol\node_modules
+node_modules/
+.env
+.env.*
+!.env.example
+
+dist/
+build/
+coverage/
+*.logc:\monProjet\lol\node_modules
