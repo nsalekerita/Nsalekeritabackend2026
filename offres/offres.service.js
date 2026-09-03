@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.publierOffre = publierOffre;
+exports.modifierOffre = modifierOffre;
+exports.supprimerOffre = supprimerOffre;
 exports.listerOffresValidees = listerOffresValidees;
 exports.getOffre = getOffre;
 exports.listerOffresEntreprise = listerOffresEntreprise;
@@ -15,6 +17,28 @@ async function publierOffre(entrepriseId, input) {
     if (error)
         throw error;
     return data;
+}
+async function modifierOffre(offreId, entrepriseId, input) {
+    const { data, error } = await supabase_1.supabaseAdmin
+        .from('offres')
+        .update({ ...input, statut: 'en_attente' }) // Repasse en attente si modifiée ? Ou reste validée ? Souvent on repasse en attente.
+        .eq('id', offreId)
+        .eq('entreprise_id', entrepriseId)
+        .select()
+        .single();
+    if (error)
+        throw error;
+    return data;
+}
+async function supprimerOffre(offreId, entrepriseId) {
+    const { error } = await supabase_1.supabaseAdmin
+        .from('offres')
+        .delete()
+        .eq('id', offreId)
+        .eq('entreprise_id', entrepriseId);
+    if (error)
+        throw error;
+    return { success: true };
 }
 /** Liste publique (étudiants) : uniquement les offres validées */
 async function listerOffresValidees(filters) {

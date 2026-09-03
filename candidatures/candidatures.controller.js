@@ -33,18 +33,34 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.refuser = exports.accepter = exports.candidaturesPourOffre = exports.mesCandidatures = exports.postuler = void 0;
+exports.refuser = exports.accepter = exports.candidaturesPourEntreprise = exports.candidaturesPourOffre = exports.mesCandidatures = exports.postuler = void 0;
 const asyncHandler_1 = require("../utils/asyncHandler");
 const response_1 = require("../utils/response");
 const service = __importStar(require("./candidatures.service"));
 exports.postuler = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     if (req.user?.role !== 'etudiant' || !req.user.profileId)
         return (0, response_1.fail)(res, 'Réservé aux étudiants', 403);
-    const { offreId, cv_url, message } = req.body ?? {};
+    const { offreId } = req.body ?? {};
     if (!offreId)
         return (0, response_1.fail)(res, 'offreId requis', 422);
-    const data = await service.postuler(req.user.profileId, offreId, cv_url, message);
+    const data = await service.postuler(req.user.profileId, offreId, req.body);
     return (0, response_1.ok)(res, data, 201);
+});
+exports.demandeUploadCandidature = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    if (req.user?.role !== 'etudiant' || !req.user.profileId)
+        return (0, response_1.fail)(res, 'Réservé aux étudiants', 403);
+    const { bucket, nom_fichier } = req.body ?? {};
+    if (!bucket || !nom_fichier)
+        return (0, response_1.fail)(res, 'bucket et nom_fichier requis', 422);
+    const data = await service.getSignedCandidatureUploadUrl(req.user.profileId, bucket, nom_fichier);
+    return (0, response_1.ok)(res, data);
+});
+exports.getPublicUrl = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const { bucket, path } = req.query;
+    if (!bucket || !path)
+        return (0, response_1.fail)(res, 'bucket et path requis', 422);
+    const url = await service.getPublicUrl(bucket, path);
+    return (0, response_1.ok)(res, { url });
 });
 exports.mesCandidatures = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     if (req.user?.role !== 'etudiant' || !req.user.profileId)
@@ -56,6 +72,12 @@ exports.candidaturesPourOffre = (0, asyncHandler_1.asyncHandler)(async (req, res
     if (req.user?.role !== 'entreprise')
         return (0, response_1.fail)(res, 'Réservé aux entreprises', 403);
     const data = await service.candidaturesPourOffre(req.params.offreId);
+    return (0, response_1.ok)(res, data);
+});
+exports.candidaturesPourEntreprise = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    if (req.user?.role !== 'entreprise' || !req.user.profileId)
+        return (0, response_1.fail)(res, 'Réservé aux entreprises', 403);
+    const data = await service.candidaturesPourEntreprise(req.user.profileId);
     return (0, response_1.ok)(res, data);
 });
 exports.accepter = (0, asyncHandler_1.asyncHandler)(async (req, res) => {

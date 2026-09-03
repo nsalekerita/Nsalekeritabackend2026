@@ -15,6 +15,7 @@ const candidatures_routes_1 = __importDefault(require("./candidatures/candidatur
 const filieres_routes_1 = __importDefault(require("./filieres/filieres.routes"));
 const admin_routes_1 = __importDefault(require("./admin/admin.routes"));
 const ia_routes_1 = __importDefault(require("./ia/ia.routes"));
+const messages_routes_1 = __importDefault(require("./messages/messages.routes"));
 const error_middleware_1 = require("./middleware/error.middleware");
 exports.app = (0, express_1.default)();
 exports.app.use((0, helmet_1.default)());
@@ -29,5 +30,6 @@ exports.app.use('/api/candidatures', candidatures_routes_1.default);
 exports.app.use('/api/filieres', filieres_routes_1.default);
 exports.app.use('/api/admin', admin_routes_1.default);
 exports.app.use('/api/ia', ia_routes_1.default);
+exports.app.use('/api/messages', messages_routes_1.default);
 exports.app.use(error_middleware_1.notFoundMiddleware);
 exports.app.use(error_middleware_1.errorMiddleware);

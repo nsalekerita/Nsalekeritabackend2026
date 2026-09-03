@@ -9,7 +9,7 @@ const auth_middleware_1 = require("../middleware/auth.middleware");
 
 const router = (0, express_1.Router)();
 
-router.use(auth_middleware_1.protect); // Toutes les routes de messagerie sont protégées
+router.use(auth_middleware_1.requireAuth); // Toutes les routes de messagerie sont protégées
 
 router.post('/', messages_controller_1.envoyerMessage);
 router.get('/conversation/:contactId', messages_controller_1.getConversation);

@@ -7,7 +7,7 @@ const messagesService = require("./messages.service");
 
 exports.envoyerMessage = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const { destinataire_id, contenu } = req.body;
-    const expediteurId = req.user.profileId;
+    const expediteurId = req.user.id; // Utilise l'ID de auth.users
     const expediteurType = req.user.role; // 'etudiant' ou 'entreprise'
 
     if (!destinataire_id || !contenu) {
@@ -19,7 +19,7 @@ exports.envoyerMessage = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
 });
 
 exports.getConversation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const userId = req.user.profileId;
+    const userId = req.user.id; // Utilise l'ID de auth.users
     const contactId = req.params.contactId;
 
     const data = await messagesService.getConversation(userId, contactId);

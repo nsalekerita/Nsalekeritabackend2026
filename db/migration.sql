@@ -139,9 +139,32 @@ create table candidatures (
   id uuid primary key default gen_random_uuid(),
   offre_id uuid not null references offres(id) on delete cascade,
   etudiant_id uuid not null references etudiants(id) on delete cascade,
-  cv_url text,
-  message text,
   statut candidature_statut not null default 'envoyee',
+  -- Informations personnelles
+  nom text,
+  prenom text,
+  email text,
+  telephone_contact text,
+  date_naissance text,
+  genre text,
+  nationalite text,
+  adresse_complete jsonb,
+  -- Informations académiques
+  universite text,
+  filiere text,
+  niveau_etudes text,
+  annee_etude text,
+  -- Informations liées à l'offre
+  date_disponibilite text,
+  duree_souhaitee text,
+  message text,
+  -- Pièces jointes (URLs)
+  cv_url text,
+  lettre_motivation_url text,
+  releve_notes_url text,
+  cni_url text,
+  -- Consentement
+  certification_exactitude boolean default false,
   created_at timestamptz not null default now()
 );
 
@@ -198,6 +221,29 @@ create index idx_messages_conversation_id on messages(conversation_id);
 -- =========================================================
 alter table users add column if not exists actif boolean not null default true;
 
--- Bucket Storage pour les CV (à créer aussi depuis l'UI Supabase > Storage si cette
--- commande n'est pas disponible dans votre plan) :
--- insert into storage.buckets (id, name, public) values ('cvs', 'cvs', false);
+-- =========================================================
+-- CONFIGURATION STORAGE (Buckets et RLS)
+-- =========================================================
+
+-- Création des buckets s'ils n'existent pas
+INSERT INTO storage.buckets (id, name, public)
+VALUES
+  ('cvs', 'cvs', true),
+  ('lettres-motivation', 'lettres-motivation', true),
+  ('notes-bulletins', 'notes-bulletins', true),
+  ('cni', 'cni', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Note: 'public: true' permet l'accès via getPublicUrl().
+-- Pour plus de sécurité (CNI), il est recommandé de passer en public: false
+-- et d'utiliser des URLs signées pour la lecture.
+
+-- RLS pour le Storage (Exemple pour 'cvs')
+-- Autoriser les étudiants à uploader dans leur propre dossier
+CREATE POLICY "Upload CV Étudiant" ON storage.objects FOR INSERT
+WITH CHECK (bucket_id = 'cvs' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+-- Autoriser tout le monde (ou entreprises seulement) à lire si le bucket est public
+CREATE POLICY "Lecture publique CV" ON storage.objects FOR SELECT
+USING (bucket_id = 'cvs');
+

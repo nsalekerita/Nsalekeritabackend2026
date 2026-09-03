@@ -60,13 +60,29 @@ async function registerEntreprise(input) {
     return { token: (0, jwt_1.signToken)(authUser), user: authUser };
 }
 async function login(email, password) {
-    const { data: user } = await supabase_1.supabaseAdmin
+    // 1. On récupère les infos de base sans 'actif' pour assurer la connexion
+    const { data: user, error } = await supabase_1.supabaseAdmin
         .from('users')
         .select('id, email, password_hash, role')
         .eq('email', email)
         .maybeSingle();
+
+    if (error)
+        throw new HttpError(`Erreur de lecture du compte: ${error.message}`, 500);
     if (!user)
         throw new HttpError('E-mail ou mot de passe incorrect', 401);
+
+    // 2. On vérifie le statut 'actif' seulement s'il existe (ne bloque pas le login sinon)
+    const { data: accountStatus } = await supabase_1.supabaseAdmin
+        .from('users')
+        .select('actif')
+        .eq('id', user.id)
+        .maybeSingle();
+
+    if (accountStatus && accountStatus.actif === false) {
+        throw new HttpError('Votre compte a été bloqué par un administrateur.', 403);
+    }
+
     const valid = await (0, password_1.comparePassword)(password, user.password_hash);
     if (!valid)
         throw new HttpError('E-mail ou mot de passe incorrect', 401);

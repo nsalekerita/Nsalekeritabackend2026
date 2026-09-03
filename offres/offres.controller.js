@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.matching = exports.mesOffres = exports.getById = exports.listerPubliques = exports.publier = void 0;
+exports.matching = exports.mesOffres = exports.getById = exports.listerPubliques = exports.publier = exports.modifier = exports.supprimer = void 0;
 const asyncHandler_1 = require("../utils/asyncHandler");
 const response_1 = require("../utils/response");
 const service = __importStar(require("./offres.service"));
@@ -45,6 +45,18 @@ exports.publier = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         return (0, response_1.fail)(res, 'titre et type requis', 422);
     const data = await service.publierOffre(req.user.profileId, req.body);
     return (0, response_1.ok)(res, data, 201);
+});
+exports.modifier = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    if (req.user?.role !== 'entreprise' || !req.user.profileId)
+        return (0, response_1.fail)(res, 'Réservé aux entreprises', 403);
+    const data = await service.modifierOffre(req.params.id, req.user.profileId, req.body);
+    return (0, response_1.ok)(res, data);
+});
+exports.supprimer = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    if (req.user?.role !== 'entreprise' || !req.user.profileId)
+        return (0, response_1.fail)(res, 'Réservé aux entreprises', 403);
+    await service.supprimerOffre(req.params.id, req.user.profileId);
+    return (0, response_1.ok)(res, { message: 'Offre supprimée' });
 });
 exports.listerPubliques = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const { type, filiereId } = req.query;

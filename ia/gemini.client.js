@@ -13,7 +13,7 @@ async function callGemini(messages, system, maxTokens = 1000) {
     if (!env_1.env.geminiApiKey) {
         throw new Error("GEMINI_API_KEY n'est pas configurée (.env)");
     }
-    const model = env_1.env.geminiModel || 'gemini-2.5-flash';
+    const model = env_1.env.geminiModel || 'gemini-1.5-flash';
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     const contents = messages.map((m) => ({

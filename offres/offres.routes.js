@@ -40,6 +40,8 @@ const router = (0, express_1.Router)();
 router.get('/', controller.listerPubliques); // consultable sans auth stricte (peut être restreint à requireAuth si besoin)
 router.get('/:id', controller.getById);
 router.post('/', auth_middleware_1.requireAuth, (0, auth_middleware_1.requireRole)('entreprise'), controller.publier);
+router.put('/:id', auth_middleware_1.requireAuth, (0, auth_middleware_1.requireRole)('entreprise'), controller.modifier);
+router.delete('/:id', auth_middleware_1.requireAuth, (0, auth_middleware_1.requireRole)('entreprise'), controller.supprimer);
 router.get('/entreprise/mes-offres', auth_middleware_1.requireAuth, (0, auth_middleware_1.requireRole)('entreprise'), controller.mesOffres);
 router.get('/:id/matching', auth_middleware_1.requireAuth, (0, auth_middleware_1.requireRole)('entreprise'), controller.matching);
 exports.default = router;
